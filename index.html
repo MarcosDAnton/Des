@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Des</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" type='text/css' href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+  <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ngreen: '#00FF66',
+          },
+          fontFamily: {
+            orbit: ['Orbitron', 'sans-serif'],
+            mono: ['Share Tech Mono', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    .hidden-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .hidden-scrollbar::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    /* Estilo para quando o cartão está sendo arrastado */
+    .dragging {
+      opacity: 0.4;
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+
+<body
+  class="relative min-h-screen m-0 overflow-x-hidden bg-[#f4f7f5] text-[#222222] dark:bg-black dark:text-[#d8d8d8] font-mono scroll-smooth hidden-scrollbar transition-colors duration-500">
+  
+  <!-- Opacidade do canvas aumentada para tornar o fundo animado mais visível -->
+  <canvas id="geometry-canvas" class="fixed inset-0 z-0 pointer-events-none opacity-65 dark:opacity-75"></canvas>
+  
+  <div class="pointer-events-none fixed inset-0 z-[1] bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0,0,0,0.05)_2px,rgba(0,0,0,0.05)_4px)] dark:block hidden"></div>
+
+  <div class="fixed top-6 right-8 z-50">
+    <button id="theme-toggle" class="relative group px-4 py-2 border border-[#00ff66] bg-white text-black dark:bg-black dark:text-[#00FF66] font-mono text-xs uppercase tracking-widest transition-all duration-300 shadow-[0_0_10px_rgba(0,255,102,0.1)] hover:shadow-[0_0_20px_rgba(0,255,102,0.4)]">
+      [ MODO ESCURO ]
+    </button>
+  </div>
+
+  <header class="relative z-10 px-8 md:px-16 pt-24 pb-14">
+    <div
+      class="relative overflow-hidden transition-transform duration-300 ease-[cubic-bezier(.22,.68,0,1.2)] hover:-translate-y-1 border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] p-6 shadow-[0_0_50px_rgba(0,0,0,0.05)] dark:shadow-[0_0_50px_rgba(0,0,0,0.4)] flex flex-col md:flex-row items-center gap-6 mb-12">
+      <img src="https://avatars.githubusercontent.com/u/274956009?v=4" alt="Foto de perfil"
+        class="h-28 w-28 border-2 border-black/10 dark:border-white/20 object-cover shadow-lg" />
+      <div class="text-center md:text-left">
+        <p class="font-mono text-sm uppercase tracking-[0.36em] text-emerald-600 dark:text-[#00FF66] mb-3">SOBRE MIM</p>
+        <p class="font-mono text-sm leading-relaxed text-black/70 dark:text-white/80">
+          "Sou designer focado em construir universos estéticos marcantes e interfaces que provocam sensações. Meu trabalho transita entre o minimalismo funcional do UI/UX e a expressividade da arte digital. Acredito que o bom design não apenas resolve problemas, mas cria conexões visuais profundas e inesquecíveis."</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="relative z-10 px-8 md:px-16 mt-4 flex flex-wrap gap-3 items-center">
+    <span class="font-mono text-xs text-black/40 dark:text-white/20 tracking-widest mr-2">PROJETOS:</span>
+    <button onclick="fc('all')" class="fbtn px-4 py-2 border border-[#00FF66] text-black font-mono text-[0.65rem] uppercase tracking-[0.15em] bg-[#00FF66] shadow-[0_0_14px_rgba(0,255,102,0.4)] transition-all duration-300" data-f="all">EXIBIR TODOS</button>
+    <button onclick="fc('uiux')" class="fbtn px-4 py-2 border border-black/10 dark:border-white/12 text-black/50 dark:text-white/40 font-mono text-[0.65rem] uppercase tracking-[0.15em] bg-transparent transition-all duration-300 hover:text-emerald-600 dark:hover:text-[#00FF66] hover:border-emerald-600/40 dark:hover:border-[#00FF6644]" data-f="uiux">UI / UX DESIGN</button>
+    <button onclick="fc('branding')" class="fbtn px-4 py-2 border border-black/10 dark:border-white/12 text-black/50 dark:text-white/40 font-mono text-[0.65rem] uppercase tracking-[0.15em] bg-transparent transition-all duration-300 hover:text-emerald-600 dark:hover:text-[#00FF66] hover:border-emerald-600/40 dark:hover:border-[#00FF6644]" data-f="branding">BRANDING & ID</button>
+    <button onclick="fc('3d')" class="fbtn px-4 py-2 border border-black/10 dark:border-white/12 text-black/50 dark:text-white/40 font-mono text-[0.65rem] uppercase tracking-[0.15em] bg-transparent transition-all duration-300 hover:text-emerald-600 dark:hover:text-[#00FF66] hover:border-emerald-600/40 dark:hover:border-[#00FF6644]" data-f="3d">3D & ARTE DIGITAL</button>
+  </section>
+
+  <main class="relative z-10 px-8 md:px-16 mt-8 pb-28">
+    <!-- Grid que receberá os eventos de Drag over -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="pgrid">
+
+      <!-- Adicionado draggable="true" nos artigos -->
+      <article data-cat="uiux" draggable="true"
+        class="relative overflow-hidden bg-white dark:bg-[#050505] border border-black/5 dark:border-[#161616] transition duration-300 ease-[cubic-bezier(.22,.68,0,1.2)] hover:-translate-y-1 hover:border-emerald-500/30 dark:hover:border-[#00FF6633] hover:shadow-[0_0_30px_rgba(0,255,102,0.05),0_4_40px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_30px_rgba(0,255,102,0.08),0_4_40px_rgba(0,0,0,0.6)] cursor-move group">
+        <div class="absolute top-0 left-0 w-[11px] h-[11px] border-t-[2px] border-l-[2px] border-emerald-500 dark:border-[#00FF66] z-10"></div>
+        <div class="absolute bottom-0 right-0 w-[11px] h-[11px] border-b-[2px] border-r-[2px] border-emerald-500 dark:border-[#00FF66] z-10"></div>
+
+        <div class="h-[155px] relative overflow-hidden flex items-center justify-center bg-[linear-gradient(135deg,#fdfdfd,#f4f7f5)] dark:bg-[linear-gradient(135deg,#030303,#001408)]">
+          <div class="text-emerald-500 dark:text-[#00FF66] text-4xl font-orbit font-black opacity-20 dark:opacity-20 tracking-wider">INTERFACE</div>
+        </div>
+
+        <div class="p-5">
+          <h2 class="font-orbit text-sm font-bold text-black dark:text-white group-hover:text-emerald-600 dark:group-hover:text-[#00FF66] transition-colors duration-300">
+            Neo-Banking Mobile App</h2>
+          <p class="font-mono text-xs mt-2 leading-loose text-black/60 dark:text-white/60">
+            Estudo de caso focado em usabilidade e microinterações para uma carteira digital futurista, priorizando acessibilidade e design estrutural.
+          </p>
+        </div>
+      </article>
+
+      <article data-cat="branding" draggable="true"
+        class="relative overflow-hidden bg-white dark:bg-[#050505] border border-black/5 dark:border-[#161616] transition duration-300 ease-[cubic-bezier(.22,.68,0,1.2)] hover:-translate-y-1 hover:border-emerald-500/30 dark:hover:border-[#00FF6633] hover:shadow-[0_0_30px_rgba(0,255,102,0.05),0_4_40px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_30px_rgba(0,255,102,0.08),0_4_40px_rgba(0,0,0,0.6)] cursor-move group">
+        <div class="absolute top-0 left-0 w-[11px] h-[11px] border-t-[2px] border-l-[2px] border-emerald-500 dark:border-[#00FF66] z-10"></div>
+        <div class="absolute bottom-0 right-0 w-[11px] h-[11px] border-b-[2px] border-r-[2px] border-emerald-500 dark:border-[#00FF66] z-10"></div>
+
+        <div class="h-[155px] relative overflow-hidden flex items-center justify-center bg-[linear-gradient(135deg,#fdfdfd,#f4f7f5)] dark:bg-[linear-gradient(135deg,#030303,#001408)]">
+          <div class="text-emerald-500 dark:text-[#00FF66] text-4xl font-orbit font-black opacity-20 dark:opacity-20 tracking-wider">IDENTITY</div>
+        </div>
+
+        <div class="p-5">
+          <h2 class="font-orbit text-sm font-bold text-black dark:text-white group-hover:text-emerald-600 dark:group-hover:text-[#00FF66] transition-colors duration-300">
+            Redesign de Marca CyberStudio</h2>
+          <p class="font-mono text-xs mt-2 leading-loose text-black/60 dark:text-white/60">
+            Criação de identidade visual completa, incluindo manual de marca, tipografia customizada e diretrizes para mídias físicas e digitais.
+          </p>
+        </div>
+      </article>
+
+      <article data-cat="3d" draggable="true"
+        class="relative overflow-hidden bg-white dark:bg-[#050505] border border-black/5 dark:border-[#161616] transition duration-300 ease-[cubic-bezier(.22,.68,0,1.2)] hover:-translate-y-1 hover:border-emerald-500/30 dark:hover:border-[#00FF6633] hover:shadow-[0_0_30px_rgba(0,255,102,0.05),0_4_40px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_30px_rgba(0,255,102,0.08),0_4_40px_rgba(0,0,0,0.6)] cursor-move group">
+        <div class="absolute top-0 left-0 w-[11px] h-[11px] border-t-[2px] border-l-[2px] border-emerald-500 dark:border-[#00FF66] z-10"></div>
+        <div class="absolute bottom-0 right-0 w-[11px] h-[11px] border-b-[2px] border-r-[2px] border-emerald-500 dark:border-[#00FF66] z-10"></div>
+
+        <div class="h-[155px] relative overflow-hidden flex items-center justify-center bg-[linear-gradient(135deg,#fdfdfd,#f4f7f5)] dark:bg-[linear-gradient(135deg,#030303,#001408)]">
+          <div class="text-emerald-500 dark:text-[#00FF66] text-4xl font-orbit font-black opacity-20 dark:opacity-20 tracking-wider">DIMENSION</div>
+        </div>
+
+        <div class="p-5">
+          <h2 class="font-orbit text-sm font-bold text-black dark:text-white group-hover:text-emerald-600 dark:group-hover:text-[#00FF66] transition-colors duration-300">
+            Abstrata Synth Wave 3D</h2>
+          <p class="font-mono text-xs mt-2 leading-loose text-black/60 dark:text-white/60">
+            Explorações tridimensionais de renderização em luz difusa, texturas de vidro texturizado e elements surreais criados para campanhas digitais.
+          </p>
+        </div>
+      </article>
+
+    </div>
+  </main>
+
+  <footer class="relative z-10 border-t border-black/5 dark:border-white/5 px-8 md:px-16 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-3 text-black dark:text-white">
+      <span class="w-[7px] h-[7px] rounded-full bg-[#00FF66] inline-block animate-[pulse_1.8s_ease-in-out_infinite] shadow-[0_0_4px_#00FF66,0_0_10px_#00FF66]"></span>
+      &copy;Des <span id="current-year"></span>  
+    </div>
+    <div class="flex gap-8">
+      <a href="https://github.com/MarcosDAnton" target="_blank"><img src="https://github.githubassets.com/favicons/favicon.svg" class="w-4 dark:invert-0 grayscale dark:grayscale-0"></a>
+      <a href="https://www.linkedin.com/in/marcos-antonio-d-silva-pereira-843446402/" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/LinkedIn_icon.svg/1280px-LinkedIn_icon.svg.png" class="w-4"></a>
+      <a href="https://www.behance.net" target="_blank"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/behance/behance-original.svg" class="w-4"></a>
+    </div>
+  </footer>
+
+  <section class="relative z-10 border-t border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-[rgba(0,255,102,0.01)] py-4 px-8 md:px-16 overflow-x-auto hidden-scrollbar">
+    <div class="flex flex-nowrap items-center gap-8 min-w-max text-black/40 dark:text-white/40">
+      <div class="flex items-center gap-2" title="Figma"><i class="devicon-figma-plain colored text-xl"></i></div>
+      <div class="flex items-center gap-2" title="Photoshop"><i class="devicon-photoshop-plain colored text-xl"></i></div>
+      <div class="flex items-center gap-2" title="Illustrator"><i class="devicon-illustrator-plain colored text-xl"></i></div>
+      <div class="flex items-center gap-2" title="Blender"><i class="devicon-blender-original colored text-xl"></i></div>
+      <div class="flex items-center gap-2" title="Canva"><i class="devicon-canva-original colored text-xl"></i></div>
+      <div class="flex items-center gap-2" title="Three.js"><i class="devicon-threejs-original text-xl text-black dark:text-white"></i></div>
+    </div>
+  </section>
+
+  <script>
+    const toggleBtn = document.getElementById('theme-toggle');
+    const htmlElement = document.documentElement;
+
+    // Inicialização baseada no localStorage ou preferência do sistema
+    if (localStorage.getItem('theme') === 'light') {
+      htmlElement.classList.remove('dark');
+      toggleBtn.textContent = "[ MODO CLARO ]";
+    } else {
+      htmlElement.classList.add('dark');
+      toggleBtn.textContent = "[ MODO ESCURO ]";
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      if (htmlElement.classList.contains('dark')) {
+        htmlElement.classList.remove('dark');
+        toggleBtn.textContent = "[ MODO CLARO ]";
+        localStorage.setItem('theme', 'light');
+      } else {
+        htmlElement.classList.add('dark');
+        toggleBtn.textContent = "[ MODO ESCURO ]";
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+
+    // Filtros de Categoria
+    function fc(cat) {
+      const activeClasses = ['bg-[#00FF66]', 'text-black', 'border-[#00FF66]', 'shadow-[0_0_14px_rgba(0,255,102,0.5)]'];
+      document.querySelectorAll('.fbtn').forEach(b => b.classList.remove(...activeClasses));
+      const activeBtn = document.querySelector(`[data-f="${cat}"]`);
+      if (activeBtn) activeBtn.classList.add(...activeClasses);
+      
+      document.querySelectorAll('#pgrid article').forEach(card => {
+        const match = cat === 'all' || card.dataset.cat === cat;
+        card.style.transition = 'opacity .3s ease, transform .3s ease';
+        if (match) {
+          card.style.opacity = '1'; card.style.transform = '';
+          card.style.pointerEvents = ''; card.style.display = '';
+        } else {
+          card.style.opacity = '0'; card.style.transform = 'scale(0.96)';
+          card.style.pointerEvents = 'none';
+          setTimeout(() => { if(card.style.opacity === '0') card.style.display = 'none'; }, 320);
+        }
+      });
+    }
+
+    // CANVAS GEOMÉTRICO
+    const cv = document.getElementById('geometry-canvas');
+    const ctx = cv.getContext('2d');
+
+    function resize() { cv.width = window.innerWidth; cv.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+
+    const SHAPES_COUNT = 15;
+    const shapes = [];
+
+    function makeShape() {
+      const types = ['circle', 'triangle', 'square', 'polygon'];
+      return {
+        x: Math.random() * cv.width,
+        y: Math.random() * cv.height,
+        size: 20 + Math.random() * 80,
+        type: types[Math.floor(Math.random() * types.length)],
+        vx: (Math.random() - 0.5) * 25, 
+        vy: (Math.random() - 0.5) * 25,
+        rotation: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 0.2,
+        sides: 5 + Math.floor(Math.random() * 3)
+      };
+    }
+
+    for (let i = 0; i < SHAPES_COUNT; i++) shapes.push(makeShape());
+
+    function drawShape(s, isDark) {
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.rotate(s.rotation);
+      
+      // Aumentada a opacidade das cores das formas para ficarem mais nítidas
+      if (isDark) {
+        ctx.strokeStyle = 'rgba(0, 255, 102, 0.55)';
+        ctx.fillStyle = 'rgba(0, 255, 102, 0.06)';
+      } else {
+        ctx.strokeStyle = 'rgba(5, 150, 105, 0.45)';
+        ctx.fillStyle = 'rgba(5, 150, 105, 0.05)';
+      }
+      ctx.lineWidth = 1.8;
+
+      ctx.beginPath();
+      if (s.type === 'circle') {
+        ctx.arc(0, 0, s.size / 2, 0, Math.PI * 2);
+      } else if (s.type === 'square') {
+        ctx.rect(-s.size / 2, -s.size / 2, s.size, s.size);
+      } else if (s.type === 'triangle') {
+        ctx.moveTo(0, -s.size / 2);
+        ctx.lineTo(s.size / 2, s.size / 2);
+        ctx.lineTo(-s.size / 2, s.size / 2);
+        ctx.closePath();
+      } else if (s.type === 'polygon') {
+        for (let i = 0; i < s.sides; i++) {
+          const angle = (i / s.sides) * Math.PI * 2;
+          const x = Math.cos(angle) * (s.size / 2);
+          const y = Math.sin(angle) * (s.size / 2);
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+      }
+      
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    let last = 0;
+    function loop(ts) {
+      if (!last) last = ts;
+      const dt = Math.min((ts - last) / 1000, 0.1);
+      last = ts;
+      ctx.clearRect(0, 0, cv.width, cv.height);
+
+      const isDark = htmlElement.classList.contains('dark');
+
+      for (const s of shapes) {
+        s.x += s.vx * dt;
+        s.y += s.vy * dt;
+        s.rotation += s.vRot * dt;
+
+        if (s.x < -s.size) s.x = cv.width + s.size;
+        if (s.x > cv.width + s.size) s.x = -s.size;
+        if (s.y < -s.size) s.y = cv.height + s.size;
+        if (s.y > cv.height + s.size) s.y = -s.size;
+
+        drawShape(s, isDark);
+      }
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    // SISTEMA DE ARRASTAR CARTÕES (DRAG AND DROP)
+    const pgrid = document.getElementById('pgrid');
+    
+    pgrid.addEventListener('dragstart', (e) => {
+      const targetCard = e.target.closest('article');
+      if (targetCard) {
+        targetCard.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      }
+    });
+
+    pgrid.addEventListener('dragend', (e) => {
+      const targetCard = e.target.closest('article');
+      if (targetCard) {
+        targetCard.classList.remove('dragging');
+      }
+    });
+
+    pgrid.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      const draggingCard = document.querySelector('.dragging');
+      if (!draggingCard) return;
+
+      // Encontra o cartão mais próximo da posição do mouse para alternar de lugar
+      const siblings = [...pgrid.querySelectorAll('article:not(.dragging)')];
+      const nextSibling = siblings.find(sibling => {
+        const box = sibling.getBoundingClientRect();
+        // Detecta aproximação horizontal e vertical baseada no grid
+        return e.clientX <= box.left + box.width / 2 && e.clientY <= box.top + box.height / 2 || 
+               e.clientY <= box.top + box.height / 2;
+      });
+
+      if (nextSibling) {
+        pgrid.insertBefore(draggingCard, nextSibling);
+      } else {
+        pgrid.appendChild(draggingCard);
+      }
+    });
+  </script>
+</body>
+
+</html>
