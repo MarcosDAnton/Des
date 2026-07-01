@@ -74,15 +74,7 @@
     </div>
   </header>
 
-  <section class="relative z-10 px-8 md:px-16 mt-4 flex flex-wrap gap-3 items-center">
-    <span class="font-mono text-xs text-black/40 dark:text-white/20 tracking-widest mr-2">PROJETOS:</span>
-    <button onclick="fc('all')" class="fbtn px-4 py-2 border border-[#00FF66] text-black font-mono text-[0.65rem] uppercase tracking-[0.15em] bg-[#00FF66] shadow-[0_0_14px_rgba(0,255,102,0.4)] transition-all duration-300" data-f="all">EXIBIR TODOS</button>
-    <button onclick="fc('uiux')" class="fbtn px-4 py-2 border border-black/10 dark:border-white/12 text-black/50 dark:text-white/40 font-mono text-[0.65rem] uppercase tracking-[0.15em] bg-transparent transition-all duration-300 hover:text-emerald-600 dark:hover:text-[#00FF66] hover:border-emerald-600/40 dark:hover:border-[#00FF6644]" data-f="uiux">UI / UX DESIGN</button>
-    <button onclick="fc('branding')" class="fbtn px-4 py-2 border border-black/10 dark:border-white/12 text-black/50 dark:text-white/40 font-mono text-[0.65rem] uppercase tracking-[0.15em] bg-transparent transition-all duration-300 hover:text-emerald-600 dark:hover:text-[#00FF66] hover:border-emerald-600/40 dark:hover:border-[#00FF6644]" data-f="branding">BRANDING & ID</button>
-    <button onclick="fc('3d')" class="fbtn px-4 py-2 border border-black/10 dark:border-white/12 text-black/50 dark:text-white/40 font-mono text-[0.65rem] uppercase tracking-[0.15em] bg-transparent transition-all duration-300 hover:text-emerald-600 dark:hover:text-[#00FF66] hover:border-emerald-600/40 dark:hover:border-[#00FF6644]" data-f="3d">3D & ARTE DIGITAL</button>
-  </section>
-
-  <main class="relative z-10 px-8 md:px-16 mt-8 pb-28">
+  <main class="relative z-10 px-8 md:px-16 mt-4 pb-28">
     <!-- Grid que receberá os eventos de Drag over -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="pgrid">
 
@@ -152,7 +144,7 @@
     <div class="flex gap-8">
       <a href="https://github.com/MarcosDAnton" target="_blank"><img src="https://github.githubassets.com/favicons/favicon.svg" class="w-4 dark:invert-0 grayscale dark:grayscale-0"></a>
       <a href="https://www.linkedin.com/in/marcos-antonio-d-silva-pereira-843446402/" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/LinkedIn_icon.svg/1280px-LinkedIn_icon.svg.png" class="w-4"></a>
-      <a href="https://www.behance.net" target="_blank"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/behance/behance-original.svg" class="w-4"></a>
+      <a href="https://www.behance.net/marcosdsilv" target="_blank"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/behance/behance-original.svg" class="w-4"></a>
     </div>
   </footer>
 
@@ -193,27 +185,6 @@
     });
 
     document.getElementById('current-year').textContent = new Date().getFullYear();
-
-    // Filtros de Categoria
-    function fc(cat) {
-      const activeClasses = ['bg-[#00FF66]', 'text-black', 'border-[#00FF66]', 'shadow-[0_0_14px_rgba(0,255,102,0.5)]'];
-      document.querySelectorAll('.fbtn').forEach(b => b.classList.remove(...activeClasses));
-      const activeBtn = document.querySelector(`[data-f="${cat}"]`);
-      if (activeBtn) activeBtn.classList.add(...activeClasses);
-      
-      document.querySelectorAll('#pgrid article').forEach(card => {
-        const match = cat === 'all' || card.dataset.cat === cat;
-        card.style.transition = 'opacity .3s ease, transform .3s ease';
-        if (match) {
-          card.style.opacity = '1'; card.style.transform = '';
-          card.style.pointerEvents = ''; card.style.display = '';
-        } else {
-          card.style.opacity = '0'; card.style.transform = 'scale(0.96)';
-          card.style.pointerEvents = 'none';
-          setTimeout(() => { if(card.style.opacity === '0') card.style.display = 'none'; }, 320);
-        }
-      });
-    }
 
     // CANVAS GEOMÉTRICO
     const cv = document.getElementById('geometry-canvas');
