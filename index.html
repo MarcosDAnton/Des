@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Des</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" type='text/css' href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+  <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ngreen: '#00FF66',
+          },
+          fontFamily: {
+            orbit: ['Orbitron', 'sans-serif'],
+            mono: ['Share Tech Mono', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    .hidden-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .hidden-scrollbar::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    :root {
+      --accent: #00FF66;
+      --accent-soft: rgba(0, 255, 102, 0.12);
+      --accent-strong: rgba(0, 255, 102, 0.75);
+    }
+
+    .selection-summary {
+      border: 1px solid rgba(0,0,0,0.08);
+      background: rgba(0, 255, 102, 0.03);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
+    }
+
+    .selection-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: rgba(0,0,0,0.02);
+      color: rgba(0,0,0,0.8);
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .utility-item,
+    .social-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      position: relative;
+    }
+
+    .utility-add-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.04);
+      border: 1px solid rgba(0,0,0,0.09);
+      color: rgba(0,0,0,0.7);
+      font-size: 1rem;
+      line-height: 1;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .utility-add-btn:hover,
+    .utility-add-btn:focus-visible {
+      background: rgba(0, 255, 102, 0.12);
+      border-color: rgba(0, 255, 102, 0.5);
+      color: #000;
+      box-shadow: 0 0 12px rgba(0, 255, 102, 0.35);
+      outline: none;
+    }
+
+    .utility-add-btn.is-selected {
+      background: rgba(0, 255, 102, 0.18);
+      border-color: rgba(0, 255, 102, 0.9);
+      color: #000;
+      box-shadow: 0 0 14px rgba(0, 255, 102, 0.4);
+    }
+
+    /* Estilo para quando o cartão está sendo arrastado */
+    .dragging {
+      opacity: 0.4;
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+
+<!-- Adicionado 'flex flex-col' para permitir o controle dinâmico do footer através do mt-auto -->
+
+<body
+  class="relative min-h-screen m-0 overflow-x-hidden bg-[#f4f7f5] text-[#222222] dark:bg-black dark:text-[#d8d8d8] font-mono scroll-smooth hidden-scrollbar transition-colors duration-500 flex flex-col">
+
+  <!-- Opacidade do canvas aumentada para tornar o fundo animado mais visível -->
+  <canvas id="geometry-canvas" class="fixed inset-0 z-0 pointer-events-none opacity-65 dark:opacity-75"></canvas>
+
+  <div
+    class="pointer-events-none fixed inset-0 z-[1] bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0,0,0,0.05)_2px,rgba(0,0,0,0.05)_4px)] dark:block hidden">
+  </div>
+
+  <!-- Ajustado o posicionamento do botão para não sobrepor conteúdos em telas menores (celular) -->
+  <div class="absolute md:fixed top-6 right-6 md:right-8 z-50">
+    <button id="theme-toggle"
+      class="relative group px-4 py-2 border border-[#00ff66] bg-white text-black dark:bg-black dark:text-[#00FF66] font-mono text-xs uppercase tracking-widest transition-all duration-300 shadow-[0_0_10px_rgba(0,255,102,0.1)] hover:shadow-[0_0_20px_rgba(0,255,102,0.4)]">
+      [ MODO ESCURO ]
+    </button>
+  </div>
+
+  <header class="relative z-10 px-8 md:px-16 pt-24 pb-14">
+    <div
+      class="relative overflow-hidden transition-transform duration-300 ease-[cubic-bezier(.22,.68,0,1.2)] hover:-translate-y-1 border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] p-6 shadow-[0_0_50px_rgba(0,0,0,0.05)] dark:shadow-[0_0_50px_rgba(0,0,0,0.4)] flex flex-col md:flex-row items-center gap-6 mb-12">
+      <div class="text-center md:text-left">
+        <p class="font-mono text-sm uppercase tracking-[0.36em] text-emerald-600 dark:text-[#00FF66] mb-3">Sobre Designs</p>
+        <p class="font-mono text-sm leading-relaxed text-black/70 dark:text-white/80">
+          "Sou designer focado em construir universos estéticos marcantes e interfaces que provocam sensações. Meu
+          trabalho transita entre o minimalismo funcional do UI/UX e a expressividade da arte digital. Acredito que o
+          bom design não apenas resolve problemas, mas cria conexões visuais profundas e inesquecíveis."</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Corrigida a classe com erro de digitação ("z-01-0710" para "z-10") -->
+  <main class="relative z-10 px-8 md:px-16 mt-4 pb-28">
+    <!-- Grid que receberá os eventos de Drag over -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="pgrid">
+
+      <!-- Cards comentados originais mantidos intactos -->
+
+    </div>
+  </main>
+
+  <!-- Adicionado 'mt-auto' para forçar o footer a se fixar na base em telas grandes como notebooks e tablets -->
+  <footer
+    class="relative z-10 mt-auto border-t border-black/5 dark:border-white/5 px-8 md:px-16 py-8 flex flex-col items-stretch justify-start gap-2">
+    <div class="order-last self-end flex items-center gap-3 text-black dark:text-white">
+      <span
+        class="w-[7px] h-[7px] rounded-full bg-[#00FF66] inline-block animate-[pulse_1.8s_ease-in-out_infinite] shadow-[0_0_4px_#00FF66,0_0_10px_#00FF66]"></span>
+      &copy;Des <span id="current-year"></span>
+    </div>
+
+    <!-- REDES -->
+    <div id="social-links" class="social-links order-first self-end flex gap-8">
+
+      <!-- GitHub -->
+      <a href="https://github.com/MarcosDAnton/Des" target="_blank"><img
+          src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/github-white-icon.png"
+          class="w-4 dark:invert-0 grayscale dark:grayscale-0"></a>
+
+      <!-- WhatsApp-->
+      <a href="https://wa.me/5521964986068" target="_blank"><img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/960px-WhatsApp.svg.png"
+          class="w-4"></a>
+
+      <!-- Instagram -->
+      <a href="https://ig.me/m/marcosdanton.ofc" target="_blank"><img
+          src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Instagram-Gradient-Logo-PNG.png" class="w-4"></a>
+
+      <!-- LinkedIn -->
+      <a href="https://www.linkedin.com/in/marcos-antonio-d-silva-pereira-843446402/" target="_blank"><img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/LinkedIn_icon.svg/1280px-LinkedIn_icon.svg.png"
+          class="w-4"></a>
+
+      <!-- Fiverr-->
+      <a href="https://br.fiverr.com/" target="_blank">
+        <img src="https://www.fiverr.com/favicon.ico" class="w-4"></a>
+
+
+      <!-- YT Jobs -->
+      <a href="https://ytjobs.co/talent/profile/590889?r=740" target="_blank"><img
+          src="https://upload.wikimedia.org/wikipedia/commons/e/ef/Youtube_logo.png?utm_source=pt.wikipedia.org&utm_campaign=index&utm_content=original" class="w-5"></a>
+
+          
+    </div>
+  </footer>
+
+  <!-- UTILITÁRIOS -->
+  <section
+    class="relative z-10 border-t border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-[rgba(0,255,102,0.01)] py-4 px-8 md:px-16 overflow-x-auto hidden-scrollbar">
+    <div id="utility-track" class="utility-track flex flex-nowrap items-center gap-8 min-w-max text-black/40 dark:text-white/40">
+
+      <!-- Canva -->
+      <div class="flex items-center gap-2" title="Canva"><a href="https://www.canva.com/" target="_blank"
+          rel="noopener noreferrer"><img
+            src="https://logo-teka.com/wp-content/uploads/2025/09/canva-icon-logo.png" class="w-5"></a>
+      </div>
+
+      <!-- Suno -->
+      <div class="flex items-center gap-2" title="Suno"><a href="https://suno.com/" target="_blank"
+          rel="noopener noreferrer"><img
+            src="https://luyawlnnudilfvtgkrmk.supabase.co/storage/v1/object/public/logos/SUNO_AppIcon_RoundedCorners-5.png"
+            class="w-5"></a></div>
+
+      <!-- CapCut -->
+      <div class="flex items-center gap-2" title="Capcut"><a href="https://www.capcut.com/" target="_blank"
+          rel="noopener noreferrer"><img src="https://freepnglogo.com/images/all_img/1691746000capcut-logo%20(2).png"
+            class="w-5"></a></div>
+
+      <!-- Photopea -->
+      <div class="flex items-center gap-2" title="Photopea"><a href="https://www.photopea.com/" target="_blank"
+          rel="noopener noreferrer"><img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Photopea_logo.svg/3840px-Photopea_logo.svg.png"
+            class="w-5"></a></div>
+
+      <!-- DaVinci Resolve -->
+      <div class="flex items-center gap-2" title="Davince Resolve"><a
+          href="https://www.blackmagicdesign.com/pt/event/davinciresolvedownload" target="_blank"
+          rel="noopener noreferrer"><img
+            src="https://upload.wikimedia.org/wikipedia/commons/4/4d/DaVinci_Resolve_Studio.png" class="w-5"></a></div>
+
+      <!-- Pippit IA-->
+      <div class="flex items-center gap-2" title="Pippit"><a
+          href="https://www.pippit.ai/pt-br?utm_medium=sem&utm_source=googleadwords_int&utm_campaign=brand&pid=573081&af_c_id=23670828427&adset_id=200034863928&ad_id=800821290847&placement=&keyword=pipit%20ia&targetid=kwd-2418332403961&matchtype=e&gad_source=1&gad_campaignid=23670828427&gbraid=0AAAAACROvhkn99V3-rUWYdASHcTDm9n7W&gclid=Cj0KCQjw9ZLSBhCcARIsAEhGKgPihy8RfGRf5eFYn_eIUDhZmoGbKFj5LEigclZa73G52s69iOmlrc4aAi5mEALw_wcB"
+          target="_blank" rel="noopener noreferrer"><img
+            src="https://yt3.googleusercontent.com/OZKJ346HPwnGyuKMKkc8-Y6dWVuFm5Ijk12dxfBcr3EEp-r6Not5l8pGyDyV3e-wmH5BKnRWWg=s900-c-k-c0x00ffffff-no-rj"
+            class="w-5"></a></div>
+
+      <!-- Invideo -->
+      <div class="flex items-center gap-2" title="Invideo"><a href="https://invideo.io/pt/criar/editor-de-video-ia/
+" target="_blank" rel="noopener noreferrer"><img
+            src="https://play-lh.googleusercontent.com/GAw8IN-sTQan4aDtev_ErYaamLv3McDBEOC4ycy-7fimK2H6Y6gvd3jkt4QgmGaXwDe74-Xt1B7ZOhfjQE2K=s256-rw"
+            class="w-5"></a></div>
+
+      <!-- Dreamina-->
+      <div class="flex items-center gap-2" title="Dreamina"><a
+          href="https://dreamina.capcut.com/ai-tool/home?need_login=true" target="_blank" rel="noopener noreferrer"><img
+            src="https://sf16-web-tos-buz.capcutcdn-us.com/obj/capcut-web-buz-tx/growth/dreamina/static/image/dreamina.341a5ecb.png"
+            class="w-5"></a></div>
+
+      <!-- Gemini IA -->
+      <div class="flex items-center gap-2">
+        <a href="https://gemini.google.com/app?is_sa=1&is_sa=1&android-min-version=301356232&ios-min-version=322.0&campaign_id=bkws&utm_source=sem&utm_medium=paid-media&utm_campaign=bkws&pt=9008&mt=8&ct=p-growth-sem-bkws&gclsrc=aw.ds&gad_source=1&gad_campaignid=20437330524&gbraid=0AAAAApk5BhmR_FJJqKfgU8iuB6ac-CmWQ&gclid=CjwKCAjwsrbTBhAvEiwA0Bpp4bGUVHXh-soIhB-xF0trnZQsngkWKtWgG8hOZaCilR7pSKJnRyNB9RoCQ3MQAvD_BwE"
+          target="_blank"><img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Google_Gemini_icon_2025.svg/500px-Google_Gemini_icon_2025.svg.png"
+            class="w-4"></a>
+      </div>
+
+      <!-- ILovePDF -->
+      <div class="flex items-center gap-2" title="IlovePDF"><a href="https://www.ilovepdf.com/pt" target="_blank"
+          rel="noopener noreferrer"><img
+            src="https://imgproxy.domestika.org/unsafe/w:820/plain/src://content-items/001/486/750/02_behance_ilovepdf-original.png?1451205200"
+            class="w-5"></a></div>
+
+      <!-- ILoveIMG -->
+      <div class="flex items-center gap-2" title="IloveIMG"><a href="https://www.iloveimg.com/pt" target="_blank"
+          rel="noopener noreferrer"><img
+            src="https://files.startupranking.com/startup/thumb/29523_01323ab0e9e47e9f0004762697d6cfac6aa12f52_iloveimg_l.png"
+            class="w-5"></a></div>
+
+      <!-- Remove.bg -->
+      <div class="flex items-center gap-2" title="Remove.bg"><a href="https://www.remove.bg/pt-br" target="_blank"
+          rel="noopener noreferrer"><img
+            src="https://media.licdn.com/dms/image/v2/D4D0BAQHuTP5XzQSHZQ/company-logo_200_200/company-logo_200_200/0/1688368316924/remove_bg_logo?e=2147483647&v=beta&t=JV57xIcPmZv1GsDjAhhADUA5B9vxz_133bqJxn4U0G8"
+            class="w-5"></a></div>
+
+      <!-- Favicon.io -->
+      <div class="flex items-center gap-2" title="Favicon.io"><a href="https://favicon.io/favicon-converter/"
+          target="_blank" rel="noopener noreferrer"><img
+            src="https://upload.wikimedia.org/wikipedia/commons/d/d1/Favicon.ico.png" class="w-4"></a></div>
+
+      <!-- Epidemic Sounds  -->
+      <div class="flex items-center gap-2" title="Epidemic Sounds"><a
+          href="https://www.epidemicsound.com/pt/music/featured/" target="_blank" rel="noopener noreferrer"><img
+            src="https://consumersiteimages.trustpilot.net/business-units/5c97c4fb621b7e00010eda45-198x149-1x.jpg"
+            class="w-5"></a></div>
+
+
+    </div>
+  </section>
+
+  <script>
+    function getSelectionKey() {
+      const path = location.pathname.split('/').pop() || 'index.html';
+      return `4dex-selection-${path}`;
+    }
+
+    function updateSelectionSummary() {
+      const container = document.getElementById('selection-items');
+      if (!container) return;
+
+      const selectionKey = getSelectionKey();
+      const selected = JSON.parse(localStorage.getItem(selectionKey) || '[]');
+
+      if (!selected.length) {
+        container.innerHTML = '<span class="font-mono text-[10px] uppercase tracking-[0.22em] text-black/40 dark:text-white/40">Nenhuma ferramenta adicionada</span>';
+        return;
+      }
+
+      container.innerHTML = '';
+      selected.forEach((item) => {
+        const chip = document.createElement('span');
+        chip.className = 'selection-chip';
+        chip.textContent = item;
+        container.appendChild(chip);
+      });
+    }
+
+    function bindSelectionButtons() {
+      const selectionKey = getSelectionKey();
+      const selected = new Set(JSON.parse(localStorage.getItem(selectionKey) || '[]'));
+
+      document.querySelectorAll('.utility-add-btn').forEach((button) => {
+        const itemName = button.dataset.label || 'Ferramenta';
+        const isSelected = selected.has(itemName);
+        button.classList.toggle('is-selected', isSelected);
+        button.textContent = isSelected ? '✓' : '+';
+        button.setAttribute('aria-pressed', String(isSelected));
+
+        button.onclick = (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          const nextSet = new Set(JSON.parse(localStorage.getItem(selectionKey) || '[]'));
+          if (nextSet.has(itemName)) {
+            nextSet.delete(itemName);
+          } else {
+            nextSet.add(itemName);
+          }
+
+          localStorage.setItem(selectionKey, JSON.stringify([...nextSet]));
+          updateSelectionSummary();
+          bindSelectionButtons();
+        };
+      });
+    }
+
+    function decorateUtilityTrack() {
+      const track = document.getElementById('utility-track');
+      if (!track) return;
+
+      [...track.children].forEach((item) => {
+        if (!item || item.classList.contains('utility-item')) return;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'utility-item';
+        item.parentNode.insertBefore(wrapper, item);
+        wrapper.appendChild(item);
+
+        const label = item.getAttribute('title') || item.textContent.trim() || 'Ferramenta';
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'utility-add-btn';
+        button.dataset.label = label;
+        button.textContent = '+';
+        wrapper.appendChild(button);
+      });
+
+      bindSelectionButtons();
+    }
+
+    function decorateSocialLinks() {
+      const panel = document.getElementById('social-links');
+      if (!panel) return;
+
+      [...panel.children].forEach((link) => {
+        if (!link || link.classList.contains('social-item')) return;
+
+        const wrapper = document.createElement('span');
+        wrapper.className = 'social-item';
+        link.parentNode.insertBefore(wrapper, link);
+        wrapper.appendChild(link);
+
+        const label = link.getAttribute('aria-label') || link.querySelector('img')?.getAttribute('alt') || link.href || 'Rede';
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'utility-add-btn';
+        button.dataset.label = label;
+        button.textContent = '+';
+        wrapper.appendChild(button);
+      });
+
+      bindSelectionButtons();
+    }
+
+    const toggleBtn = document.getElementById('theme-toggle');
+    const htmlElement = document.documentElement;
+
+    if (localStorage.getItem('theme') === 'light') {
+      htmlElement.classList.remove('dark');
+      toggleBtn.textContent = "[ MODO CLARO ]";
+    } else {
+      htmlElement.classList.add('dark');
+      toggleBtn.textContent = "[ MODO ESCURO ]";
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      if (htmlElement.classList.contains('dark')) {
+        htmlElement.classList.remove('dark');
+        toggleBtn.textContent = "[ MODO CLARO ]";
+        localStorage.setItem('theme', 'light');
+      } else {
+        htmlElement.classList.add('dark');
+        toggleBtn.textContent = "[ MODO ESCURO ]";
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+
+    const cv = document.getElementById('geometry-canvas');
+    const ctx = cv.getContext('2d');
+
+    function resize() { cv.width = window.innerWidth; cv.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+
+    const SHAPES_COUNT = 15;
+    const shapes = [];
+
+    function makeShape() {
+      const types = ['circle', 'triangle', 'square', 'polygon'];
+      return {
+        x: Math.random() * cv.width,
+        y: Math.random() * cv.height,
+        size: 20 + Math.random() * 80,
+        type: types[Math.floor(Math.random() * types.length)],
+        vx: (Math.random() - 0.5) * 25,
+        vy: (Math.random() - 0.5) * 25,
+        rotation: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 0.2,
+        sides: 5 + Math.floor(Math.random() * 3)
+      };
+    }
+
+    for (let i = 0; i < SHAPES_COUNT; i++) shapes.push(makeShape());
+
+    function drawShape(s, isDark) {
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.rotate(s.rotation);
+
+      if (isDark) {
+        ctx.strokeStyle = 'rgba(0, 255, 102, 0.55)';
+        ctx.fillStyle = 'rgba(0, 255, 102, 0.06)';
+      } else {
+        ctx.strokeStyle = 'rgba(5, 150, 105, 0.45)';
+        ctx.fillStyle = 'rgba(5, 150, 105, 0.05)';
+      }
+      ctx.lineWidth = 1.8;
+
+      ctx.beginPath();
+      if (s.type === 'circle') {
+        ctx.arc(0, 0, s.size / 2, 0, Math.PI * 2);
+      } else if (s.type === 'square') {
+        ctx.rect(-s.size / 2, -s.size / 2, s.size, s.size);
+      } else if (s.type === 'triangle') {
+        ctx.moveTo(0, -s.size / 2);
+        ctx.lineTo(s.size / 2, s.size / 2);
+        ctx.lineTo(-s.size / 2, s.size / 2);
+        ctx.closePath();
+      } else if (s.type === 'polygon') {
+        for (let i = 0; i < s.sides; i++) {
+          const angle = (i / s.sides) * Math.PI * 2;
+          const x = Math.cos(angle) * (s.size / 2);
+          const y = Math.sin(angle) * (s.size / 2);
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+      }
+
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    let last = 0;
+    function loop(ts) {
+      if (!last) last = ts;
+      const dt = Math.min((ts - last) / 1000, 0.1);
+      last = ts;
+      ctx.clearRect(0, 0, cv.width, cv.height);
+
+      const isDark = htmlElement.classList.contains('dark');
+
+      for (const s of shapes) {
+        s.x += s.vx * dt;
+        s.y += s.vy * dt;
+        s.rotation += s.vRot * dt;
+
+        if (s.x < -s.size) s.x = cv.width + s.size;
+        if (s.x > cv.width + s.size) s.x = -s.size;
+        if (s.y < -s.size) s.y = cv.height + s.size;
+        if (s.y > cv.height + s.size) s.y = -s.size;
+
+        drawShape(s, isDark);
+      }
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    const pgrid = document.getElementById('pgrid');
+
+    pgrid.addEventListener('dragstart', (e) => {
+      const targetCard = e.target.closest('article');
+      if (targetCard) {
+        targetCard.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      }
+    });
+
+    pgrid.addEventListener('dragend', (e) => {
+      const targetCard = e.target.closest('article');
+      if (targetCard) {
+        targetCard.classList.remove('dragging');
+      }
+    });
+
+    pgrid.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      const draggingCard = document.querySelector('.dragging');
+      if (!draggingCard) return;
+
+      const siblings = [...pgrid.querySelectorAll('article:not(.dragging)')];
+      const nextSibling = siblings.find(sibling => {
+        const box = sibling.getBoundingClientRect();
+        return e.clientX <= box.left + box.width / 2 && e.clientY <= box.top + box.height / 2 ||
+          e.clientY <= box.top + box.height / 2;
+      });
+
+      if (nextSibling) {
+        pgrid.insertBefore(draggingCard, nextSibling);
+      } else {
+        pgrid.appendChild(draggingCard);
+      }
+    });
+  </script>
+  <script src="../src/utility-selector.js"></script>
+</body>
+
+</html>
